@@ -1,0 +1,2653 @@
+{
+	"info": {
+		"_postman_id": "87ea2586-1442-4eba-894d-814a79aa468b",
+		"name": "Restful Booker",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "28256987"
+	},
+	"item": [
+		{
+			"name": "Ping Health Check",
+			"item": [
+				{
+					"name": "Ping Health Check endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"//Testing status code",
+									"pm.test(\"Health Check Status is 201\", ()=>{",
+									"    pm.response.to.have.status(201);",
+									"});",
+									"",
+									"pm.test(\"Health Check Response is Created\", ()=>{",
+									"    pm.expect(pm.response.text()).to.include(\"Created\")",
+									"});",
+									"",
+									"pm.test(\"Response for Health check endpoint have Content-Type header\", ()=>{ ",
+									"    var headers = pm.response.headers;",
+									"    pm.expect(headers.has(\"Content-Type\")).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response time for Health check endpoint is less then 2000ms\", ()=>{",
+									"    var responseTime = pm.response.responseTime;",
+									"    pm.expect(responseTime).to.be.below(2000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.collectionVariables.set(\"booker_url\",\"https://restful-booker.herokuapp.com\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/ping",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"ping"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Ping Health Check with wrong request type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Health Check Status with incorrect request method is 404\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/ping",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"ping"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Png Health Check with invalid endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Health Check Status with invalid endpoint is 404\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/ping-health",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"ping-health"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get All booking",
+			"item": [
+				{
+					"name": "Get All Booking endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get all booking endpoint gives 200 Ok\", ()=>{",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response for get all booking endpoint have Content-Type header\", ()=>{ ",
+									"    var headers = pm.response.headers;",
+									"    pm.expect(headers.has(\"Content-Type\")).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response for get all booking endpoint have Content-Type header\", ()=>{ ",
+									"    var headers = pm.response.headers;",
+									"    pm.expect(headers.get(\"Content-type\")).to.include(\"application/json; charset=utf-8\")",
+									"});",
+									"",
+									"pm.test(\"Response time for get all booking endpoint is less then 3000ms\", ()=>{",
+									"    var responseTime = pm.response.responseTime;",
+									"    pm.expect(responseTime).to.be.below(3000);",
+									"});",
+									"",
+									"var jsonData = pm.response.json();",
+									"pm.test(\"Response data for get all booking endpoint is array and booking id is number\", ()=>{",
+									"    pm.expect(jsonData).to.be.an(\"array\");",
+									"    pm.expect(jsonData[0].bookingid).to.be.a(\"number\")",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"function generateRandomFirstName(length){",
+									"    const alphabet = \"ABCDEFGHIJKLMNOPQRSTUVWXYZ\";",
+									"    let result = \"\";",
+									"",
+									"    for(let i = 0; i< length; i++){",
+									"        const randomIndext= Math.floor(Math.random() * alphabet.length);",
+									"        result += alphabet.charAt(randomIndext);",
+									"    }",
+									"    return result;",
+									"}",
+									"",
+									"const firstName = generateRandomFirstName(8);",
+									"const lastName = generateRandomFirstName(10);",
+									"const currentDate = new Date();",
+									"const date = currentDate.toDateString('en-US');",
+									"const inputDate = new Date(date);",
+									"const year = inputDate.getFullYear();",
+									"const month = (inputDate.getMonth() + 1).toString().padStart(2, '0'); // Months are zero-indexed",
+									"const day = inputDate.getDate().toString().padStart(2, '0');",
+									"const todayDate = `${year}-${month}-${day}`;",
+									"",
+									"pm.collectionVariables.set(\"firstName\",firstName);",
+									"pm.collectionVariables.set(\"lastName\",lastName);",
+									"pm.collectionVariables.set(\"checkinDate\",todayDate);",
+									"pm.collectionVariables.set(\"checkoutDate\",todayDate);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/booking",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create bew booking to get new booking id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var jsonData = pm.response.json();",
+									"pm.collectionVariables.set(\"bookingId\", jsonData.bookingid);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{firstName}}\",\n    \"lastname\" : \"{{lastName}}\",\n    \"totalprice\" : 1000,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{checkinDate}}\",\n        \"checkout\" : \"{{checkinDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Booking with invalid endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get all booking with invalid endpoint gives 404 Not Found\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/booking-invalid",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking-invalid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Booking endpoint with wrong request type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get All Booking endpoint with incorrect request method gives 404 Not Found\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/booking",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Booking filtering with first name and last name",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Id with first name and last name is correct\", () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData[0].bookingid).to.eql(pm.collectionVariables.get(\"bookingId\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/booking?firstname={{firstName}}&lastname={{lastName}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking"
+							],
+							"query": [
+								{
+									"key": "firstname",
+									"value": "{{firstName}}"
+								},
+								{
+									"key": "lastname",
+									"value": "{{lastName}}"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Booking filtering with checkin and checkout dates",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Id filtered with checkin and checkout dates is correct\", () => {",
+									"    var jsonData = pm.response.json();",
+									"    pm.expect(jsonData[0].bookingid).to.eql(pm.collectionVariables.get(\"bookingId\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/booking?checkin={{checkinDate}}&checkout={{checkoutDate}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking"
+							],
+							"query": [
+								{
+									"key": "checkin",
+									"value": "{{checkinDate}}"
+								},
+								{
+									"key": "checkout",
+									"value": "{{checkoutDate}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Create Booking",
+			"item": [
+				{
+					"name": "Verify if you  are getting status code of 200 for Create booking endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 200\",  ()=> {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const headers = pm.response.headers;",
+									"pm.test(\"Response have Content-Type header\",()=>{",
+									"    pm.expect(headers.has(\"Content-Type\")).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response have Content-Type header\", ()=>{ ",
+									"    pm.expect(headers.get(\"Content-type\")).to.include(\"application/json; charset=utf-8\");",
+									"});",
+									"",
+									"pm.test(\"Response time is less than 2000ms\", () =>{",
+									"    pm.expect(pm.response.responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"const jsonData = pm.response.json();",
+									"pm.test(\"Response data type is correct\", ()=>{",
+									"    pm.expect(jsonData).to.be.an(\"object\");",
+									"    pm.expect(jsonData.bookingid).to.be.a(\"number\");",
+									"    pm.expect(jsonData.booking.firstname).to.be.a(\"string\");",
+									"    pm.expect(jsonData.booking.bookingdates.checkin).to.be.a(\"string\");",
+									"    pm.expect(jsonData.booking.bookingdates.checkout).to.be.a(\"string\");",
+									"});",
+									"",
+									"const jsonSchema = {",
+									"  \"$schema\": \"http://json-schema.org/draft-07/schema#\",",
+									"  \"title\": \"Generated schema for Root\",",
+									"  \"type\": \"object\",",
+									"  \"properties\": {",
+									"    \"bookingid\": {",
+									"      \"type\": \"number\"",
+									"    },",
+									"    \"booking\": {",
+									"      \"type\": \"object\",",
+									"      \"properties\": {",
+									"        \"firstname\": {",
+									"          \"type\": \"string\"",
+									"        },",
+									"        \"lastname\": {",
+									"          \"type\": \"string\"",
+									"        },",
+									"        \"totalprice\": {",
+									"          \"type\": \"number\"",
+									"        },",
+									"        \"depositpaid\": {",
+									"          \"type\": \"boolean\"",
+									"        },",
+									"        \"bookingdates\": {",
+									"          \"type\": \"object\",",
+									"          \"properties\": {",
+									"            \"checkin\": {",
+									"              \"type\": \"string\"",
+									"            },",
+									"            \"checkout\": {",
+									"              \"type\": \"string\"",
+									"            }",
+									"          },",
+									"          \"required\": [",
+									"            \"checkin\",",
+									"            \"checkout\"",
+									"          ]",
+									"        },",
+									"        \"additionalneeds\": {",
+									"          \"type\": \"string\"",
+									"        }",
+									"      },",
+									"      \"required\": [",
+									"        \"firstname\",",
+									"        \"lastname\",",
+									"        \"totalprice\",",
+									"        \"depositpaid\",",
+									"        \"bookingdates\",",
+									"        \"additionalneeds\"",
+									"      ]",
+									"    }",
+									"  },",
+									"  \"required\": [",
+									"    \"bookingid\",",
+									"    \"booking\"",
+									"  ]",
+									"}",
+									"",
+									"pm.test(\"JSON Schema is valid\", ()=>{",
+									"\tpm.expect(tv4.validate(jsonData,jsonSchema)).to.be.true;",
+									"});",
+									"",
+									"pm.collectionVariables.set(\"bookingId\", jsonData.bookingid);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{firstName}}\",\n    \"lastname\" : \"{{lastName}}\",\n    \"totalprice\" : 1000,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{checkinDate}}\",\n        \"checkout\" : \"{{checkinDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify that the Create Booking endpoint returns a 404 Not Found status code if the endpoint does not exist.",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Create Booking with invalid endpoint gives 404 Not Found\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{firstName}}\",\n    \"lastname\" : \"{{lastName}}\",\n    \"totalprice\" : 1000,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{checkinDate}}\",\n        \"checkout\" : \"{{checkinDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking-invalid",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking-invalid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify the response code when you send Create Booking endpoind with an incorrect HTTP method",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Create Booking with invalid endpoint gives 404 Not Found\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{firstName}}\",\n    \"lastname\" : \"{{lastName}}\",\n    \"totalprice\" : 1000,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{checkinDate}}\",\n        \"checkout\" : \"{{checkinDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify that the response status code is 400 (Bad Request) when request body is missing",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Create Booking with invalid endpoint gives 404 Not Found\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"var response = pm.response.text();",
+									"pm.test(\"Response Body is Displaying Not Found\", ()=>{",
+									"    pm.expect(response).to.be.eql(\"Not Found\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking-invalid",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking-invalid"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify that the response status code is 422 (Unprocessable Entity) when sending invalid data",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code is 422\", function () {",
+									"    pm.response.to.have.status(422);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : 123456,\n    \"lastname\" : \"{{lastName}}\",\n    \"totalprice\" : 1000,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{checkinDate}}\",\n        \"checkout\" : \"{{checkinDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Get Single Booking",
+			"item": [
+				{
+					"name": "Get Single Booking endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code for single booking endpoint is 200\", ()=> {",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"const headers = pm.response.headers;",
+									"pm.test(\"Response for single booking endpoint have Content-Type header\",()=>{",
+									"    pm.expect(headers.has(\"Content-Type\")).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Resonse header for single booking endpoint is application/json; charset=utf-8\", ()=>{",
+									"    pm.expect(headers.get(\"Content-Type\")).to.include(\"application/json; charset=utf-8\");",
+									"});",
+									"",
+									"pm.test(\"Response time for single booking endpoint is less than 2000ms\", ()=>{",
+									"    var responseTime = pm.response.responseTime;",
+									"    pm.expect(responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"const jsonData = pm.response.json();",
+									"pm.test(\"Response data type for single booking endpoint is correct\", ()=>{",
+									"    pm.expect(jsonData).to.be.an(\"object\");",
+									"    pm.expect(jsonData.firstname).to.be.a(\"string\");",
+									"    pm.expect(jsonData.lastname).to.be.a(\"string\");",
+									"    pm.expect(jsonData.bookingdates.checkin).to.be.a(\"string\");",
+									"    pm.expect(jsonData.bookingdates.checkout).to.be.a(\"string\");",
+									"});",
+									"",
+									"//JSON Schema Validating",
+									"var jsonSchema = {",
+									"  \"$schema\": \"http://json-schema.org/draft-07/schema#\",",
+									"  \"title\": \"Generated schema for Root\",",
+									"  \"type\": \"object\",",
+									"  \"properties\": {",
+									"    \"firstname\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"lastname\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"totalprice\": {",
+									"      \"type\": \"number\"",
+									"    },",
+									"    \"depositpaid\": {",
+									"      \"type\": \"boolean\"",
+									"    },",
+									"    \"bookingdates\": {",
+									"      \"type\": \"object\",",
+									"      \"properties\": {",
+									"        \"checkin\": {",
+									"          \"type\": \"string\"",
+									"        },",
+									"        \"checkout\": {",
+									"          \"type\": \"string\"",
+									"        }",
+									"      },",
+									"      \"required\": [",
+									"        \"checkin\",",
+									"        \"checkout\"",
+									"      ]",
+									"    },",
+									"    \"additionalneeds\": {",
+									"      \"type\": \"string\"",
+									"    }",
+									"  },",
+									"  \"required\": [",
+									"    \"firstname\",",
+									"    \"lastname\",",
+									"    \"totalprice\",",
+									"    \"depositpaid\",",
+									"    \"bookingdates\",",
+									"    \"additionalneeds\"",
+									"  ]",
+									"}",
+									"",
+									"pm.test(\"JSON Schema for single booking endpoint is valid\", ()=>{",
+									"        pm.expect(tv4.validate(jsonData,jsonSchema)).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response data is correct for the bookingid\" + pm.collectionVariables.get(\"bookingId\"), ()=>{",
+									"    pm.expect(jsonData.firstname).to.eql(pm.collectionVariables.get(\"firstName\"));",
+									"    pm.expect(jsonData.lastname).to.eql(pm.collectionVariables.get(\"lastName\"));",
+									"    pm.expect(jsonData.bookingdates.checkin).to.eql(pm.collectionVariables.get(\"checkinDate\"));",
+									"    pm.expect(jsonData.bookingdates.checkout).to.eql(pm.collectionVariables.get(\"checkoutDate\"));",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Booking with wrong endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code for single booking with wrong endpoint is 404 Not Found\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/booking-invalid/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking-invalid",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Booking with wrong request type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code for Get Single Booking with wrong request type is 404 Not Found\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single Booking for invalid Booking Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Status code for get all booking with invalid booking id is 404 Not Found\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/booking/10920848974",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"10920848974"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Single booking with wrong booking id format",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Get Single Booking with invalid format of booking id gives 404 Not Found\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{booker_url}}/booking/abcdef",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"abcdef"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Update Booking",
+			"item": [
+				{
+					"name": "Create Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"var response = pm.response.json();",
+									"pm.collectionVariables.set(\"token\",response.token);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"username\" : \"admin\",\n    \"password\" : \"password123\"\n}"
+						},
+						"url": {
+							"raw": "https://restful-booker.herokuapp.com/auth",
+							"protocol": "https",
+							"host": [
+								"restful-booker",
+								"herokuapp",
+								"com"
+							],
+							"path": [
+								"auth"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update Booking endpoint status code 200 Ok\", ()=>{",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response have Content-Type header\", ()=>{ ",
+									"    var headers = pm.response.headers;",
+									"    pm.expect(headers.has(\"Content-Type\")).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response header is application/json; charset=utf-8\", ()=>{ ",
+									"    var headers = pm.response.headers;",
+									"    pm.expect(headers.get(\"Content-type\")).to.include(\"application/json; charset=utf-8\");",
+									"});",
+									"",
+									"pm.test(\"Response time is less then 2000ms\", ()=>{",
+									"    var responseTime = pm.response.responseTime;",
+									"    pm.expect(responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"const jsonData = pm.response.json();",
+									"pm.test(\"Response data type is correct\", ()=>{",
+									"    pm.expect(jsonData).to.be.an(\"object\");",
+									"    pm.expect(jsonData.firstname).to.be.a(\"string\");",
+									"    pm.expect(jsonData.bookingdates.checkin).to.be.a(\"string\");",
+									"    pm.expect(jsonData.bookingdates.checkout).to.be.a(\"string\");",
+									"});",
+									"",
+									"var jsonSchema = {",
+									"  \"$schema\": \"http://json-schema.org/draft-07/schema#\",",
+									"  \"title\": \"Generated schema for Root\",",
+									"  \"type\": \"object\",",
+									"  \"properties\": {",
+									"    \"firstname\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"lastname\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"totalprice\": {",
+									"      \"type\": \"number\"",
+									"    },",
+									"    \"depositpaid\": {",
+									"      \"type\": \"boolean\"",
+									"    },",
+									"    \"bookingdates\": {",
+									"      \"type\": \"object\",",
+									"      \"properties\": {",
+									"        \"checkin\": {",
+									"          \"type\": \"string\"",
+									"        },",
+									"        \"checkout\": {",
+									"          \"type\": \"string\"",
+									"        }",
+									"      },",
+									"      \"required\": [",
+									"        \"checkin\",",
+									"        \"checkout\"",
+									"      ]",
+									"    },",
+									"    \"additionalneeds\": {",
+									"      \"type\": \"string\"",
+									"    }",
+									"  },",
+									"  \"required\": [",
+									"    \"firstname\",",
+									"    \"lastname\",",
+									"    \"totalprice\",",
+									"    \"depositpaid\",",
+									"    \"bookingdates\",",
+									"    \"additionalneeds\"",
+									"  ]",
+									"}",
+									"",
+									"pm.test(\"JSON Schema is valid\", ()=>{",
+									"        pm.expect(tv4.validate(jsonData,jsonSchema)).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response data is correct for the \" + pm.collectionVariables.get(\"bookingId\"), ()=>{",
+									"    pm.expect(jsonData.firstname).to.eql(pm.variables.get(\"updateFname\"));",
+									"    pm.expect(jsonData.lastname).to.eql(pm.variables.get(\"updateLname\"));",
+									"    pm.expect(jsonData.bookingdates.checkin).to.eql(pm.variables.get(\"updateCinDate\"));",
+									"    pm.expect(jsonData.bookingdates.checkout).to.eql(pm.variables.get(\"updateCoutDate\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46cGFzc3dvcmQxMjM=",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Booking Unauthorized Access - Old Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update Booking endpoint status code 401\", ()=>{",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{182d45e8e379c6a}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Booking Unauthorized Access - Invalid token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update Booking endpoint status code 401\", ()=>{",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token=abcdefg1234"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Booking Unauthorized Access - Without Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update Booking endpoint status code 401\", ()=>{",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Booking Bad EndPoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update Booking with bad endpoint status code 404\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking-invalid/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking-invalid",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Booking Wrong Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update Booking with bad endpoint status code 404\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Booking After Booking Deleted",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Booking Missing Request Body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update Booking endpoint with missing body- status code 400 Bad Request\", ()=>{",
+									"    pm.response.to.have.status(400);",
+									"});",
+									"pm.test(\"Update Booking endpoint with missing body respone is Bad Request\", ()=>{",
+									"    var response = pm.response.text();",
+									"    pm.expect(response).to.eql(\"Bad Request\");",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46cGFzc3dvcmQxMjM=",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Partial Update Booking",
+			"item": [
+				{
+					"name": "Partial Update Booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Partial Update Booking endpoint status code 200 Ok\", ()=>{",
+									"    pm.response.to.have.status(200);",
+									"});",
+									"",
+									"pm.test(\"Response for Partial Update Booking have Content-Type header\", ()=>{ ",
+									"    var headers = pm.response.headers;",
+									"    pm.expect(headers.has(\"Content-Type\")).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response header for Partial Update Booking is application/json; charset=utf-8\", ()=>{ ",
+									"    var headers = pm.response.headers;",
+									"    pm.expect(headers.get(\"Content-type\")).to.include(\"application/json; charset=utf-8\");",
+									"});",
+									"",
+									"pm.test(\"Response time for Partial Update Booking is less then 2000ms\", ()=>{",
+									"    var responseTime = pm.response.responseTime;",
+									"    pm.expect(responseTime).to.be.below(2000);",
+									"});",
+									"",
+									"const jsonData = pm.response.json();",
+									"pm.test(\"Response data type for Partial Update Booking is correct\", ()=>{",
+									"    pm.expect(jsonData).to.be.an(\"object\");",
+									"    pm.expect(jsonData.firstname).to.be.a(\"string\");",
+									"    pm.expect(jsonData.bookingdates.checkin).to.be.a(\"string\");",
+									"    pm.expect(jsonData.bookingdates.checkout).to.be.a(\"string\");",
+									"});",
+									"",
+									"var jsonSchema = {",
+									"  \"$schema\": \"http://json-schema.org/draft-07/schema#\",",
+									"  \"title\": \"Generated schema for Root\",",
+									"  \"type\": \"object\",",
+									"  \"properties\": {",
+									"    \"firstname\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"lastname\": {",
+									"      \"type\": \"string\"",
+									"    },",
+									"    \"totalprice\": {",
+									"      \"type\": \"number\"",
+									"    },",
+									"    \"depositpaid\": {",
+									"      \"type\": \"boolean\"",
+									"    },",
+									"    \"bookingdates\": {",
+									"      \"type\": \"object\",",
+									"      \"properties\": {",
+									"        \"checkin\": {",
+									"          \"type\": \"string\"",
+									"        },",
+									"        \"checkout\": {",
+									"          \"type\": \"string\"",
+									"        }",
+									"      },",
+									"      \"required\": [",
+									"        \"checkin\",",
+									"        \"checkout\"",
+									"      ]",
+									"    },",
+									"    \"additionalneeds\": {",
+									"      \"type\": \"string\"",
+									"    }",
+									"  },",
+									"  \"required\": [",
+									"    \"firstname\",",
+									"    \"lastname\",",
+									"    \"totalprice\",",
+									"    \"depositpaid\",",
+									"    \"bookingdates\",",
+									"    \"additionalneeds\"",
+									"  ]",
+									"}",
+									"",
+									"pm.test(\"JSON Schema for Partial Update Booking is valid\", ()=>{",
+									"        pm.expect(tv4.validate(jsonData,jsonSchema)).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response data for Partial Update Booking is correct for the \" + pm.collectionVariables.get(\"bookingId\"), ()=>{",
+									"    pm.expect(jsonData.firstname).to.eql(pm.variables.get(\"updateFname\"));",
+									"    pm.expect(jsonData.lastname).to.eql(pm.variables.get(\"updateLname\"));",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Bobby\");",
+									"pm.variables.set(\"updateLname\", \"Don\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							},
+							{
+								"key": "Authorization",
+								"value": "Basic YWRtaW46cGFzc3dvcmQxMjM=",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Partial Update Booking Unauthorized Access - Old Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update Booking endpoint status code 401\", ()=>{",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{182d45e8e379c6a}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Partial Update Booking Unauthorized Access - Invalid token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update Booking endpoint status code 401\", ()=>{",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token=abcdefg1234"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Partial Update Booking Unauthorized Access - Without Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update Booking endpoint status code 401\", ()=>{",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token="
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Partial Update Booking Bad EndPoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update Booking with bad endpoint status code 404\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking-invalid/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking-invalid",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Partial Update Booking Wrong Request",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Update Booking with bad endpoint status code 404\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Partial Update Booking After Booking Deleted",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Jhon\");",
+									"pm.variables.set(\"updateLname\", \"Nair\");",
+									"pm.variables.set(\"updateCinDate\", \"2024-08-11\");",
+									"pm.variables.set(\"updateCoutDate\", \"2024-08-11\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"firstname\" : \"{{updateFname}}\",\n    \"lastname\" : \"{{updateLname}}\",\n    \"totalprice\" : 111,\n    \"depositpaid\" : true,\n    \"bookingdates\" : {\n        \"checkin\" : \"{{updateCinDate}}\",\n        \"checkout\" : \"{{updateCoutDate}}\"\n    },\n    \"additionalneeds\" : \"Breakfast\"\n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Partial Update Booking- Missing Request Body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Partial Update Booking without body- status code is 403 Forbidden\", ()=>{",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"pm.test(\"Respone in Partial Update Booking without body is Bad Request\", ()=>{",
+									"    var response = pm.response.text();",
+									"    pm.expect(response).to.eql(\"Forbidden\");",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"pm.variables.set(\"updateFname\", \"Bobby\");",
+									"pm.variables.set(\"updateLname\", \"Don\");",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Partial Update Booking- Invalid Request Body",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Partial Update Booking without body- status code is 403 Forbidden\", ()=>{",
+									"    pm.response.to.have.status(403);",
+									"});",
+									"",
+									"pm.test(\"Respone in Partial Update Booking without body is Bad Request\", ()=>{",
+									"    var response = pm.response.text();",
+									"    pm.expect(response).to.eql(\"Forbidden\");",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						},
+						{
+							"listen": "prerequest",
+							"script": {
+								"exec": [
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "PATCH",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \n}"
+						},
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Delete Booking",
+			"item": [
+				{
+					"name": "Delete Booking",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Delete Booking endpoint status code is 204 No Content\", ()=>{",
+									"    pm.response.to.have.status(204);",
+									"});",
+									"",
+									"var headers = pm.response.headers;",
+									"pm.test(\"Delete Booking endpoint have Header Content-Type\", ()=>{",
+									"    pm.expect(headers.has(\"Content-Type\")).to.be.true;",
+									"});",
+									"",
+									"pm.test(\"Response header is text/plain; charset=utf-8\", ()=>{",
+									"    pm.expect(headers.get(\"Content-type\")).to.include(\"text/plain; charset=utf-8\");",
+									"});",
+									"",
+									"var responseTime = pm.response.responseTime;",
+									"pm.test(\"Response time for delete endpoint is less then 1000ms\", ()=>{",
+									"    pm.expect(responseTime).to.be.below(1000);",
+									"});"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Booking Unauthorized Access, Old Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Delete Booking endpoint with old token status code 401\", ()=>{",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"var response = pm.response.text();",
+									"pm.test(\"Response for Delete Endpoint with old token is Unauthorized\", ()=>{",
+									"    pm.expect(response).to.eql(\"Unauthorized\");",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token=b414f3bdae95263"
+							}
+						],
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Booking Invalid Authentication",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Delete Booking endpoint with invalid token status code 401\", ()=>{",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"var response = pm.response.text();",
+									"pm.test(\"Response for Delete Endpoint with invalid token is Unauthorized\", ()=>{",
+									"    pm.expect(response).to.eql(\"Unauthorized\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token=abcd1234"
+							}
+						],
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Booking Missing Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Delete Booking endpoint without token gives status code 401\", ()=>{",
+									"    pm.response.to.have.status(401);",
+									"});",
+									"",
+									"var response = pm.response.text();",
+									"pm.test(\"Response for Delete Endpoint without token is Unauthorized\", ()=>{",
+									"    pm.expect(response).to.eql(\"Unauthorized\");",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Booking Bad Endpoint",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Delete Booking endpoint with bad endpoint gives status code 404\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"var response = pm.response.text();",
+									"pm.test(\"Response for Delete Endpoint with wrong endpoint is Unauthorized\", ()=>{",
+									"    pm.expect(response).to.eql(\"Not Found\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{booker_url}}/booking-invalid/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking-invalid",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Booking Wrong Request type",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Delete Booking endpoint with wrong request gives status code 404\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"var response = pm.response.text();",
+									"pm.test(\"Response for Delete Endpoint with wrong request is Unauthorized\", ()=>{",
+									"    pm.expect(response).to.eql(\"Not Found\");",
+									"});",
+									"",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{booker_url}}/booking/{{bookingId}}",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking",
+								"{{bookingId}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Booking Invalid Booking Id",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Delete Booking endpoint with wrong booking id gives status code 404\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"var response = pm.response.text();",
+									"pm.test(\"Response for Delete Endpoint with wrong booking id is Not Found\", ()=>{",
+									"    pm.expect(response).to.eql(\"Not Found\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{booker_url}}/booking-invalid/12345678",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking-invalid",
+								"12345678"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Booking Invalid Booking Id format",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"pm.test(\"Delete Booking endpoint with wrong booking id format gives status code 404\", ()=>{",
+									"    pm.response.to.have.status(404);",
+									"});",
+									"",
+									"var response = pm.response.text();",
+									"pm.test(\"Response for Delete Endpoint with wrong booking id format is Not Found\", ()=>{",
+									"    pm.expect(response).to.eql(\"Not Found\");",
+									"});",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Cookie",
+								"value": "token={{token}}"
+							}
+						],
+						"url": {
+							"raw": "{{booker_url}}/booking-invalid/abcdefg",
+							"host": [
+								"{{booker_url}}"
+							],
+							"path": [
+								"booking-invalid",
+								"abcdefg"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "booker_url",
+			"value": ""
+		},
+		{
+			"key": "firstName",
+			"value": ""
+		},
+		{
+			"key": "lastName",
+			"value": ""
+		},
+		{
+			"key": "checkinDate",
+			"value": ""
+		},
+		{
+			"key": "checkoutDate",
+			"value": ""
+		},
+		{
+			"key": "bookingId",
+			"value": ""
+		},
+		{
+			"key": "token",
+			"value": ""
+		}
+	]
+}
